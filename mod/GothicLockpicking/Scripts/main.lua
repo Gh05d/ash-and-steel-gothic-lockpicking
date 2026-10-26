@@ -35,13 +35,16 @@ local CODE_DIR = "Direction_5_9BFD83684F973D41ED9946BCF058CFCD"
 local CODE_CUR = "CurrentNumber_14_F800B10F461076F5C6D12FAD2D7F3322"
 local CODE_TARGET = "TargetNumber_15_E394EB464421F2E25D1F04964C1DEBD5"
 local CODE_DONE = "Status_11_6C83963B49D4242A071D2A8E479D608F"
-local UNREACHABLE = 99 -- turns per code step: the minigame never opens or fails on its own
+local UNREACHABLE = 1000000 -- turns per code step: the minigame never opens or fails on its own
+local OLD_UNREACHABLE = 99 -- what 0.1.0 test builds used
 -- S_ItemData fields
 local ITEM_ID = "ID_71_E0AE465E423DCDD08FF98D87A5C0B84F"
 local ITEM_QTY = "Quantity_76_AD4B883E4427C3E60B4B22B072F4E7C9"
 local LOCKPICK = "item_lockpick"
 local DEX = 13 -- E_StatCategory
 local PERK = "Perk_11_Picklocked"
+local SKILL = "skill_picklocking"
+local ARM_TIMEOUT_MS = 4000 -- Interaction to PickLock takes 2 s (fade)
 
 local policy = Policy.new(CFG)
 local armed = nil   -- { lock = actor, kind = "door"|"chest" } while the mod switched a lock to the combination minigame
@@ -111,7 +114,8 @@ local function isOurs(lock)
     if code:GetArrayNum() ~= 4 then return false end
     local ours = true
     code:ForEach(function(_, e)
-        if e:get()[CODE_TARGET] ~= UNREACHABLE then ours = false end
+        local t = e:get()[CODE_TARGET]
+        if t ~= UNREACHABLE and t ~= OLD_UNREACHABLE then ours = false end
     end)
     return ours
 end
@@ -126,13 +130,51 @@ local function disarm()
     armed = nil
 end
 
+local lockpicks -- defined below
+
+local function hasSkill(pawn)
+    local skills = pawn.Skills
+    if not valid(skills) then return false end
+    local out = {}
+    local ok = pcall(function() skills["PlayerHaveSkill?"](skills, SKILL, out) end)
+    return ok and out.Result == true
+end
+
+local function noDanger(lock)
+    local checks = StaticFindObject(CHECKS)
+    if not valid(checks) then return true end
+    local out = {}
+    local ok = pcall(function() checks:QS_CheckDanger(lock, out) end)
+    return not ok or out.NoDanger ~= false
+end
+
 local function arm(lock, kind)
-    if (kind == "door" and not CFG.doors) or (kind == "chest" and not CFG.chests) then return end
-    if isOpen(lock, kind) ~= false or lock["KeyNeeded?"] ~= false or lock["isExtraLocked?"] ~= false then return end
+    local pawn = playerPawn()
+    if not pawn then return end
+    local _, _, picks = lockpicks()
+    local state = {
+        enabled = (kind == "door" and CFG.doors) or (kind == "chest" and CFG.chests),
+        open = isOpen(lock, kind), keyNeeded = lock["KeyNeeded?"] ~= false,
+        extraLocked = lock["isExtraLocked?"] ~= false, ours = isOurs(lock),
+        isBag = kind == "chest" and lock["isBag?"] == true,
+        picks = picks, hasSkill = hasSkill(pawn), noDanger = noDanger(lock),
+    }
+    if not Policy.mayArm(state) then
+        if state.ours then restore(lock) end -- left armed earlier: give it back to the game
+        return
+    end
     setCode(lock)
     lock["isExtraLocked?"] = true
-    armed = { lock = lock, kind = kind }
+    local mine = { lock = lock, kind = kind }
+    armed = mine
     dbg("armed %s %s", kind, lockKey(lock))
+    -- If no PickLock follows (the game refused after all), switch the lock back before it can be saved.
+    ExecuteInGameThreadWithDelay(ARM_TIMEOUT_MS, function()
+        if armed == mine and not session then
+            dbg("no PickLock after Interaction: switching back")
+            disarm()
+        end
+    end)
 end
 
 -- After a script reload: switch back every lock the previous script instance left armed.
@@ -173,7 +215,7 @@ local function hasPerk(pawn)
     return ok and out.Result == true
 end
 
-local function lockpicks()
+lockpicks = function()
     local pawn = playerPawn()
     local inv = pawn and pawn.AC_PlayerInventory or nil
     if not valid(inv) then return nil, nil, 0 end
@@ -186,14 +228,18 @@ local function lockpicks()
 end
 
 -- The game's own break (PickLockStatus 0 + CheckPickLockStatus) stops the minigame and hides the lock,
--- so the mod removes the lockpick itself and only ends the minigame when the last one broke.
+-- so the mod removes the lockpick itself, like the game: the last one ends the minigame and removes the stack.
 local function breakLockpick(keylock)
     local inv, item, qty = lockpicks()
     play("broken", 1.5)
-    if item then pcall(function() inv["Remove Item Quantity"](inv, item, 1) end) end
-    local _, _, left = lockpicks()
-    dbg("lockpick broke: %d -> %d", qty, left)
-    if left <= 0 then pcall(function() keylock:ExitPickLock() end) end
+    local action = Policy.removeAction(qty)
+    dbg("lockpick broke: %d left before, %s", qty, action)
+    if action == "decrease" then
+        pcall(function() inv["Remove Item Quantity"](inv, item, 1) end)
+    elseif action == "remove" then
+        pcall(function() keylock:ExitPickLock() end)
+        pcall(function() inv["Remove Item from Inventory Array"](inv, item) end)
+    end
 end
 
 local function springBack(keylock)
@@ -289,7 +335,7 @@ local function registerGameHooks()
                 local ok2, err2 = pcall(fn, ...)
                 if not ok2 then log("%s: %s", path, tostring(err2)) end
             end)
-            hooked[path] = true
+            hooked[path] = ok
             if ok then dbg("hooked %s", path) else log("hook %s failed: %s", path, tostring(err)) end
         end
     end

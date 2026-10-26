@@ -143,5 +143,41 @@ class DisplayTest(unittest.TestCase):
             self.assertIsNotNone(self.cfg[k], k)
 
 
+class ArmTest(unittest.TestCase):
+    """Policy.mayArm mirrors the game's checks before PickLock (review C1/I1)."""
+    OK = dict(enabled=True, open=False, keyNeeded=False, extraLocked=False, ours=False, isBag=False,
+              picks=3, hasSkill=True, noDanger=True)
+
+    def setUp(self):
+        self.lua, self.P, _ = load()
+
+    def may(self, **over):
+        return self.P.mayArm(self.lua.table_from({**self.OK, **over}))
+
+    def test_normal_lock_is_armed(self):
+        self.assertTrue(self.may())
+
+    def test_reasons_not_to_arm(self):
+        for over in (dict(enabled=False), dict(open=True), dict(keyNeeded=True), dict(extraLocked=True),
+                     dict(isBag=True), dict(picks=0), dict(hasSkill=False), dict(noDanger=False)):
+            with self.subTest(over):
+                self.assertFalse(self.may(**over))
+
+    def test_lock_left_armed_by_the_mod_is_taken_over(self):
+        self.assertTrue(self.may(extraLocked=True, ours=True))
+
+
+class RemoveTest(unittest.TestCase):
+    """Policy.removeAction follows the game: last lockpick removes the stack (review I2)."""
+    def setUp(self):
+        self.lua, self.P, _ = load()
+
+    def test_remove_action(self):
+        self.assertEqual(self.P.removeAction(5), 'decrease')
+        self.assertEqual(self.P.removeAction(2), 'decrease')
+        self.assertEqual(self.P.removeAction(1), 'remove')
+        self.assertEqual(self.P.removeAction(0), 'none')
+
+
 if __name__ == '__main__':
     unittest.main()

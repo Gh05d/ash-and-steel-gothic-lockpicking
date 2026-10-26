@@ -45,6 +45,22 @@ function Policy.breakChance(dex, hasPerk, cfg)
     return c
 end
 
+-- Whether to switch a lock to the combination minigame. The game checks danger, skill and lockpicks before
+-- its 2 s fade to PickLock and skips the checks for locks that are already "isExtraLocked?" - so a lock the
+-- mod armed without a PickLock following would let the player pick it without skill or lockpicks, and would
+-- end up in the save game. A lock the mod left armed earlier (s.ours) is taken over.
+function Policy.mayArm(s)
+    return s.enabled and s.open == false and not s.keyNeeded and (not s.extraLocked or s.ours)
+        and not s.isBag and s.picks > 0 and s.hasSkill and s.noDanger
+end
+
+-- As the game's own minigame: the last lockpick removes the stack instead of leaving a stack of 0.
+function Policy.removeAction(qty)
+    if qty > 1 then return "decrease" end
+    if qty == 1 then return "remove" end
+    return "none"
+end
+
 function Policy.new(cfg)
     return setmetatable({ cfg = cfg, best = {}, difficulty = {}, pos = 0, done = false }, Policy)
 end
