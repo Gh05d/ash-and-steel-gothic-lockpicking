@@ -62,10 +62,17 @@ Struct-Felder von `GS_Chest_Code` stehen in der Spec.
 - **Nie** Actors per Mesh-Name suchen und löschen: Dieselben Meshes stehen fest im Level. Das hat das Spiel am 2026-10-26 abstürzen lassen.
 - Liegengebliebene Tür-Teile eines früheren Versuchs verdecken das Schloss beim nächsten Versuch (Screenshot P).
 
-## Offen (live)
+## Live-Ergebnisse 2026-10-26 (nach Neustart)
 
-- Stabile Schloss-ID über einen Neustart: Level-Truhen heißen stabil (`BP_Chest_Bag23_13`, `BP_CrystallLoot52_45`). Türen haben Laufzeitnamen (`BP_Door_C_2147372808`, ändern sich). Vergleich der Position nach dem Neustart steht aus.
-- Speichern einer umgestellten Tür, Truhen-Erfolgspfad, Truhenansicht, Decal, Fehlerton.
+- **Stabile ID:** Level-Truhen haben nach dem Neustart dieselbe Position (auf 0,1 cm) und denselben Namen (`BP_Chest_Bag23_13` 14114.1,89051.4,812.1). Türnamen sind Laufzeitnamen (`BP_Door_C_2147372808` → `…810`). → Schlüssel = Klassenname + Position auf 10 cm gerundet: `"<Klasse>@<x>,<y>,<z>"`.
+- **Zeitpunkt:** `BP_Door_C:Interaction` (post) t=210.43 → `PickLock` t=212.41 (2 s Überblendung). → Schloss **bei der Interaktion** umstellen, beim Verlassen (`ExitPickLock`) und bei jeder neuen Interaktion zurücksetzen. Kein Voraus-Scan, keine Spur im Spielstand. Nach dem Neustart war keine Tür mehr umgestellt.
+- **Fehlerton (P):** `Interaction/PickPocket/Pocket_FailSlot_01` („der erste war gut“).
+- **Absturz 2: Assets per `LoadAsset` laden und den Zeiger behalten.** Nicht referenzierte Assets (z. B. `Pocket_FailSlot_*`) räumt die Garbage Collection weg. Ein gespeicherter Lua-Zeiger zeigt dann ins Leere → `EXCEPTION_ACCESS_VIOLATION reading 0xffffffffffffffff` aus UE4SS → `PlaySound2D` (Crash-Ordner `UE4CC-Windows-76BC…`). → Assets **bei jeder Benutzung** neu auflösen (`StaticFindObject`, sonst `LoadAsset`, dann `IsValid`), nie über Frames hinweg cachen. Bereits geladene Spiel-Assets (Lockpick-Töne, Tür-Meshes) waren unauffällig, gelten aber auch nur, solange das Spiel sie referenziert.
+- **Decal:** `LockPickGrass.Decal` ist `DecalSize (64,128,128)` an der Tür (nicht der Boden). Pascal fand die Ansicht ohne Decal „sehr gut“ → weggelassen.
+
+## Offen (live, im Test von Task 3)
+
+- Truhen-Erfolgspfad (`ExtraKey:Open()`), Truhenansicht, Interaktions-Zeitfenster bei Truhen.
 
 ## Zeitpunkt des Umstellens (Idee, live zu prüfen)
 
