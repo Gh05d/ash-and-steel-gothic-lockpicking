@@ -14,6 +14,7 @@ local VERSION = "0.1.0"
 local UEHelpers = require("UEHelpers")
 local CFG = require("config")
 local Policy = require("policy")
+local DoorView = require("doorview")
 
 local CHEST = "/Game/RPG_InventorySystem/Classes/Interactable/BP_Chest.BP_Chest_C"
 local DOOR = "/Game/RPG_InventorySystem/Classes/Interactable/BP_Door.BP_Door_C"
@@ -288,12 +289,19 @@ local function registerGameHooks()
     end
 end
 
+onSessionStart[#onSessionStart + 1] = function(s)
+    if s.kind == "door" then DoorView.show(s.keylock) end
+end
+onSessionEnd[#onSessionEnd + 1] = function() DoorView.clear() end
+
 RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
     session, armed = nil, nil
     pcall(restoreLeftovers)
+    pcall(DoorView.clearLeftovers)
     registerGameHooks()
 end)
 registerGameHooks()
 pcall(restoreLeftovers)
+pcall(DoorView.clearLeftovers)
 
 log("v%s loaded", VERSION)
