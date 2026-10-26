@@ -9,7 +9,7 @@
 --     lock to the combination minigame there, with a code the minigame itself can never complete.
 --   * AddRotation (post, once per key press) feeds the input to policy.lua, which owns the combination.
 --   * ExitPickLock and every new Interaction switch the lock back, so nothing ends up in a save game.
-local VERSION = "0.1.0"
+local VERSION = "1.0.0"
 
 local UEHelpers = require("UEHelpers")
 local CFG = require("config")

@@ -1,0 +1,73 @@
+[size=4][b]Gothic Lockpicking[/b][/size]
+[i]Every Lock Has Its Combination[/i]
+
+Lockpicking as in Gothic 2. Every lock has a fixed combination of left and right turns. Get it right and the lock opens. Get a turn wrong and the lock snaps back to the start, and your lockpick may break. Remember the combination, bring enough lockpicks.
+
+[size=3][b]How it works[/b][/size]
+
+[list=1]
+[*]Pick a locked chest or door as usual. The combination lock screen opens.
+[*]Turn left with [b]A[/b] and right with [b]D[/b]. A right turn clicks and the lock turns further.
+[*]A wrong turn makes the lock snap back to the start. Your lockpick may break.
+[*]Get the whole combination right and the lock opens.
+[/list]
+
+[size=3][b]Details[/b][/size]
+
+[list]
+[*][b]Fixed combinations:[/b] the same lock always has the same combination, in every save game. Just like in Gothic, you can remember it.
+[*][b]Length by difficulty:[/b] easy locks 3-5 turns, normal locks 6-7, hard locks 8-12.
+[*][b]Breaking lockpicks:[/b] up to 50% per wrong turn at low dexterity, down to 10% at high dexterity.
+[*][b]Master Lockpicker perk:[/b] halves the break chance and shows the correct turns of your best attempt at that lock, e.g. ← ← → ← (4 of 9).
+[*]The lockpicking screen shows how many lockpicks you have left.
+[*]Doors show a door, chests show a chest.
+[*]You still need the Lockpicking skill and lockpicks, and you can't pick locks with enemies close by, as in the game.
+[*]Locks that need a key and the game's own combination locks stay exactly as they are.
+[/list]
+
+[size=3][b]Settings[/b][/size]
+
+Open [code]Scripts\config.lua[/code] in the mod folder to change the combination lengths, the break chance, the dexterity range, the text position, or to show arrows as L/R.
+
+[size=3][b]Requirements[/b][/size]
+
+[list]
+[*][url=https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/experimental-latest]UE4SS[/url] (experimental build; tested with v3.0.1-1181)
+[/list]
+
+[size=3][b]Installation[/b][/size]
+
+[list=1]
+[*]Install UE4SS: put [code]dwmapi.dll[/code] and the [code]ue4ss[/code] folder into [code]ofAshAndSteel\ofAshAndSteelGame\Binaries\Win64\[/code].
+[*]Extract this mod into your game folder [code]ofAshAndSteel\[/code]. The mod ends up in [code]ofAshAndSteelGame\Binaries\Win64\ue4ss\Mods\GothicLockpicking\[/code].
+[*]Start the game. The file [code]enabled.txt[/code] in the mod folder turns the mod on.
+[/list]
+
+[size=3][b]Steam Deck / Linux (Proton)[/b][/size]
+
+Add this to the game's launch options in Steam so UE4SS gets loaded:
+[code]WINEDLLOVERRIDES="dwmapi=n,b" %command%[/code]
+Keep any launch options you already use after [code]%command%[/code].
+
+[size=3][b]Uninstall[/b][/size]
+
+Delete [code]ue4ss\Mods\GothicLockpicking\[/code]. The mod switches a lock to the combination lock only while you pick it, so your save games stay clean.
+
+[size=3][b]Compatibility[/b][/size]
+
+[list]
+[*]Tested on Steam build 24202860 (October 2026), Steam Deck with Proton 11.
+[*]Works alongside Camp Everywhere and .pak mods such as Immersive Road Signs.
+[*]Any mod that changes the lockpicking minigame itself will conflict.
+[/list]
+
+[size=3][b]Known limitations[/b][/size]
+
+[list]
+[*]Some chests inside houses are marked as outdoor chests by the game itself, so their lockpicking screen shows an outdoor background.
+[*]Keyboard controls are A and D, as in the game's combination lock.
+[/list]
+
+[size=3][b]Source Code[/b][/size]
+
+[url=https://github.com/Gh05d/ash-and-steel-gothic-lockpicking]GitHub Repository[/url]

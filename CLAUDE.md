@@ -21,3 +21,9 @@ Pascals Mod: Schlossknacken wie in Gothic 2. Jedes Schloss hat eine feste Links/
 - Strg+R und Deploys löschen den Lua-Zustand. Der Mod muss sich danach selbst wieder scharf schalten und hängengebliebene Schlösser zurücksetzen.
 - Keine Spieldaten aus `../research/` in dieses Repo (öffentlich, sobald veröffentlicht).
 - Pascal testet selbst im Spiel; Claude startet nichts und drückt keine Tasten.
+
+## Status & Release
+
+- **v1.0.0 (2026-10-26):** Live getestet auf dem Deck (P: „funktioniert jetzt super“): Tür, Truhe, Bruch, Esc + Neuansatz, Türansicht, Meister-Anzeige. Nicht live getestet: Bruch des **letzten** Dietrichs (`Remove Item from Inventory Array`).
+- GitHub: `Gh05d/ash-and-steel-gothic-lockpicking` (öffentlich, `master`, MIT). Release per `./release.sh` (Tag aus `VERSION` in `main.lua`, Zip, GitHub-Release). `.github/workflows/nexus-upload.yml` lädt ab dem zweiten Release zu Nexus hoch: Dafür müssen das Secret `NEXUSMODS_API_KEY` und die Variable `NEXUSMODS_FILE_ID` gesetzt sein, und Pascal muss die Seite und die erste Datei von Hand angelegt haben. Der Lauf beim ersten Release scheitert absichtlich.
+- Nexus: Beschreibung `docs/nexus-description.bbcode` (englisch), Bild-Prompts `docs/nexus-art-prompts.md`, Bilder per `scripts/make_nexus_images.py` aus `docs/art/`.
