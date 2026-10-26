@@ -223,6 +223,7 @@ local function succeed(keylock)
         keylock:ExitPickLock()
     else
         keylock:Open()
+        endSession() -- the chest is open now; switch it back before the pool saves its data
     end
 end
 
