@@ -123,5 +123,25 @@ class BreakChanceTest(unittest.TestCase):
         self.assertAlmostEqual(self.chance(lo, True), 0.25)
 
 
+
+
+class DisplayTest(unittest.TestCase):
+    def setUp(self):
+        self.lua, _, self.cfg = load()
+        self.D = self.lua.eval('(require("display"))')
+
+    def test_directions_arrows(self):
+        seq = self.lua.table_from([0, 0, 1, 0])
+        self.assertEqual(self.D.directions(seq, True), '← ← → ←')
+
+    def test_directions_letters(self):
+        seq = self.lua.table_from([0, 1])
+        self.assertEqual(self.D.directions(seq, False), 'L R')
+
+    def test_config_has_display_settings(self):
+        for k in ('textX', 'textY', 'textSize', 'useArrows'):
+            self.assertIsNotNone(self.cfg[k], k)
+
+
 if __name__ == '__main__':
     unittest.main()

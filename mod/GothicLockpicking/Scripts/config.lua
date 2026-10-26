@@ -15,7 +15,12 @@ return {
     doors = true,
     chests = true,
 
-    scanRadius = 3000, -- locks within this distance (cm) of the player are prepared
-    scanMs = 2000,     -- how often (ms)
+    -- Text in the lockpicking screen: lockpicks left and, with the Master Lockpicker perk, the correct
+    -- directions of your best attempt at this lock. Position in pixels from the top left corner.
+    textX = 80,
+    textY = 80,
+    textSize = 24,
+    useArrows = true, -- false shows L/R instead of arrows
+    progressWithoutPerk = false, -- true shows your best attempt even without the perk
     debug = false,     -- log every decision to UE4SS.log
 }

@@ -15,6 +15,7 @@ local UEHelpers = require("UEHelpers")
 local CFG = require("config")
 local Policy = require("policy")
 local DoorView = require("doorview")
+local Display = require("display")
 
 local CHEST = "/Game/RPG_InventorySystem/Classes/Interactable/BP_Chest.BP_Chest_C"
 local DOOR = "/Game/RPG_InventorySystem/Classes/Interactable/BP_Door.BP_Door_C"
@@ -293,6 +294,23 @@ onSessionStart[#onSessionStart + 1] = function(s)
     if s.kind == "door" then DoorView.show(s.keylock) end
 end
 onSessionEnd[#onSessionEnd + 1] = function() DoorView.clear() end
+
+local function showStatus(s)
+    local _, _, picks = lockpicks()
+    local lines = { string.format("Lockpicks: %d", picks) }
+    local pawn = playerPawn()
+    if pawn and (CFG.progressWithoutPerk or hasPerk(pawn)) then
+        local best = policy:progress(s.key)
+        if #best > 0 then
+            lines[2] = string.format("Best so far: %s  (%d of %d)", Display.directions(best, CFG.useArrows), #best,
+                #policy.seq)
+        end
+    end
+    Display.show(s.keylock, lines, CFG)
+end
+onSessionStart[#onSessionStart + 1] = showStatus
+onProgress[#onProgress + 1] = showStatus
+onSessionEnd[#onSessionEnd + 1] = function() Display.clear() end
 
 RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
     session, armed = nil, nil
