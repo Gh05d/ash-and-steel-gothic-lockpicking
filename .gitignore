@@ -1,0 +1,9 @@
+# local UE4SS copy and build output
+deploy/
+dist/
+.claude/
+.env
+.codegraph/
+.superpowers/
+tests/.venv/
+__pycache__/
