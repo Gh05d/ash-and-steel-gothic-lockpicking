@@ -219,8 +219,12 @@ end
 local function succeed(keylock)
     play("open")
     if session.kind == "door" then
-        session.lock.LockPickOpen = true
+        -- as the game's own door minigame does on success: OpenDoor(AfterPickLock = true) unlocks the door and
+        -- swings it open; without it the door keeps its "Pick" prompt and can't be used (live 2026-10-26)
+        local door = session.lock
+        door.LockPickOpen = true
         keylock:ExitPickLock()
+        if valid(door) then door:OpenDoor(true) end
     else
         keylock:Open()
         endSession() -- the chest is open now; switch it back before the pool saves its data
