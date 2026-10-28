@@ -19,6 +19,8 @@ Pascals Mod: Schlossknacken wie in Gothic 2. Jedes Schloss hat eine feste Links/
 - UE4SS-, Deck- und Release-Regeln wie in `../camp-everywhere/CLAUDE.md` und `../fair-combat/CLAUDE.md`.
 - Hooks auf BP-Funktionen laufen erst nach der Funktion.
 - Strg+R und Deploys löschen den Lua-Zustand. Der Mod muss sich danach selbst wieder scharf schalten und hängengebliebene Schlösser zurücksetzen.
+- Schlösser nur zwischen `Interaction` und `ExitPickLock` umstellen, nie im Voraus: `SetChestData` schreibt `isExtraLocked?` in die Pool- bzw. Speicherdaten (Befund + Review C1 in `docs/findings.md`).
+- Den Bruch des Spiels (`CheckPickLockStatus`) nicht verwenden: Er hält das Minigame an und blendet das Schloss aus. Türen öffnen nur mit `OpenDoor(true)`, sonst bleibt der „Pick“-Prompt.
 - Keine Spieldaten aus `../research/` in dieses Repo (öffentlich, sobald veröffentlicht).
 - Pascal testet selbst im Spiel; Claude startet nichts und drückt keine Tasten.
 
