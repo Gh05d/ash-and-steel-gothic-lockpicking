@@ -2,7 +2,7 @@
 
 A UE4SS mod for **Of Ash and Steel** that brings back lockpicking as in Gothic 2: every lock has a fixed left/right combination, a wrong turn starts over and may break your lockpick.
 
-Download: the [GitHub releases](https://github.com/Gh05d/ash-and-steel-gothic-lockpicking/releases).
+Download: [Nexus Mods](https://www.nexusmods.com/ofashandsteel/mods/61) or the [GitHub releases](https://github.com/Gh05d/ash-and-steel-gothic-lockpicking/releases).
 
 ## How it works
 
